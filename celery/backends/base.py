@@ -215,6 +215,13 @@ class BaseBackend(object):
     def is_cached(self, task_id):
         return task_id in self._cache
 
+    def _store_result(self, task_id, result, status,
+                      traceback=None, request=None, **kwargs):
+        meta = {'status': status, 'result': result, 'traceback': traceback,
+                'children': self.current_task_children(request)}
+        self.set(self.get_key_for_task(task_id), self.encode(meta))
+        return result
+
     def store_result(self, task_id, result, status,
                      traceback=None, request=None, **kwargs):
         """Update task state and result."""
